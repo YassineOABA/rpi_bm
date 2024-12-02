@@ -1,0 +1,81 @@
+###############################################################################################
+# If set to 1, the kernel will be started in 64-bit mode. Setting to 0 selects 32-bit mode.
+# In 64-bit mode, the firmware will choose an appropriate kernel (e.g. kernel8.img), 
+# unless there is an explicit kernel option defined, in which case that is used instead.
+###############################################################################################
+arm_64bit=1
+
+###############################################################################################
+# If uart_2ndstage is 1 then enable debug logging to the UART. 
+# This option also automatically enables UART logging in start.elf. 
+# This is also described on the Boot options page.
+# The BOOT_UART property also enables bootloader UART logging but does 
+# not enable UART logging in start.elf unless uart_2ndstage=1 is also set.
+# Setting uart_2ndstage=1 causes the second-stage loader (bootcode.bin on devices 
+# prior to the Raspberry Pi 4, or the boot code in the EEPROM for Raspberry Pi 4 devices)
+# and the main firmware (start*.elf) to output diagnostic information to UART0.
+# Be aware that output is likely to interfere with Bluetooth operation unless it is disabled
+# (dtoverlay=disable-bt) or switched to the other UART (dtoverlay=miniuart-bt), and if the
+# UART is accessed simultaneously to output from Linux, then data loss can occur leading 
+# to corrupted output. This feature should only be required when trying to diagnose an early 
+# boot loading problem.
+# Default: 0
+###############################################################################################
+uart_2ndstage=1
+
+
+###############################################################################################
+# Setting enable_jtag_gpio=1 selects Alt4 mode for GPIO pins 22-27, 
+# and sets up some internal SoC connections, enabling the JTAG interface 
+# for the Arm CPU. It works on all models of Raspberry Pi.
+#Pin #  | Function
+#GPIO22 | ARM_TRST
+#GPIO23 | ARM_RTCK
+#GPIO24 | ARM_TDO
+#GPIO25 | ARM_TCK
+#GPIO26 | ARM_TDI
+#GPIO27 | ARM_TMS
+###############################################################################################
+enable_jtag_gpio=1 
+
+
+###############################################################################################
+# Disable-bt disables the Bluetooth device and makes the first PL011 (UART0) 
+# the primary UART. You must also disable the system service that initialises 
+# the modem, so it does not connect to the UART, using sudo systemctl disable hciuart.
+# miniuart-bt switches the Bluetooth function to use the mini UART, and makes the first 
+# PL011 (UART0) the primary UART. Note that this may reduce the maximum usable baud rate 
+# (see mini UART limitations below). You must also set the VPU core clock to a fixed 
+# frequency using either force_turbo=1 or core_freq=250.
+# The overlays uart2, uart3, uart4, and uart5 are used to enable the four additional UARTs 
+# on the Raspberry Pi 4. There are other UART-specific overlays in the folder. 
+###############################################################################################
+#dtoverlay=miniuart-bt
+dtoverlay=disable-bt
+
+###############################################################################################
+# By default, HDMI audio output is enabled on all Raspberry Pi models with HDMI output
+###############################################################################################
+dtoverlay=vc4-kms-v3d,noaudio
+
+###############################################################################################
+# With this setting enabled (in Raspberry Pi OS it is enabled by default), 
+# the firmware will automatically load overlays for CSI cameras that it recognises. 
+# Set camera_auto_detect=0 to disable the setting.
+###############################################################################################
+camera_auto_detect=0
+
+###############################################################################################
+# With this setting enabled (it is enabled by default in Raspberry Pi OS), 
+# the firmware will automatically load overlays for DSI displays that it recognises. 
+# Set display_auto_detect=0 to disable.
+###############################################################################################
+display_auto_detect=0
+
+###############################################################################################
+###############################################################################################
+disable_commandline_tags=1
+
+###############################################################################################
+###############################################################################################
+armstub=armstub-new.bin
