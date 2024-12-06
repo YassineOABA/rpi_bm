@@ -1,3 +1,17 @@
+/**
+ * @file        mm.h
+ * @brief       Memory management interface.
+ * @description This header defines structures and functions for managing memory allocations 
+ *              and paging on the Raspberry Pi.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #ifndef _MM_H_
 #define _MM_H_
 

@@ -1,3 +1,17 @@
+/**
+ * @file        mini_uart.h
+ * @brief       Mini UART interface for the Raspberry Pi.
+ * @description This header provides function declarations and macros for configuring and 
+ *              interacting with the mini UART peripheral.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #ifndef _MINI_UART_H_
 #define _MINI_UART_H_
 

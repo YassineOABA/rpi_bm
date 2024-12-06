@@ -1,3 +1,17 @@
+/**
+ * @file        boot.S
+ * @brief       Bootloader assembly code.
+ * @description This file contains the assembly code for the bootloader, responsible for 
+ *              initializing the system and transitioning control to the kernel.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #include "mm.h"
 
 

@@ -1,3 +1,17 @@
+/**
+ * @file        gpio.h
+ * @brief       GPIO control interface for the Raspberry Pi.
+ * @description This header contains declarations and macros for configuring and controlling 
+ *              the GPIO pins on the Raspberry Pi.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #ifndef _GPIO_H_
 #define _GPIO_H_
 

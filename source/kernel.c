@@ -1,6 +1,21 @@
+/**
+ * @file        kernel.c
+ * @brief       Kernel entry point and system initialization.
+ * @description This file contains the entry point for the Raspberry Pi kernel, along with 
+ *              initialization code for subsystems like UART, GPIO, and memory.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #include "common.h"
 #include "gpio.h"
 #include "mini_uart.h"
+#include "uart_printf.h"
 
 
 /**
@@ -27,10 +42,13 @@ int kernel_main(void)
     uart_init();
 
     // Send an initialization message to the UART terminal
-    uart_send_string("Raspberry PI bare metal kernel initialization... \n");
+    uart_printf("Raspberry PI bare metal kernel initialization... \n");
 
     // Send platform information to the UART terminal
-    uart_send_string("Platform : Raspberry PI 3 B + \n");
+    uart_printf("Platform : Raspberry PI %d B + \n",3);
+
+    // Send current exception level EL
+    uart_printf("Current EL : %i\n",get_el());
 
     // Infinite loop to continuously read from UART and echo received characters
     while(1)

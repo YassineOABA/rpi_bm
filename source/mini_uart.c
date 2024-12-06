@@ -1,3 +1,17 @@
+/**
+ * @file        mini_uart.c
+ * @brief       Implementation of mini UART functions.
+ * @description This file provides the logic for initializing and interacting with the mini UART 
+ *              peripheral on the Raspberry Pi.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #include "gpio.h"
 #include "aux.h"
 #include "mini_uart.h"

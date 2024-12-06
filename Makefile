@@ -14,6 +14,7 @@ RPI_VERSION = 3BPLUS
 
 # The mount drive
 BOOTMNT = /media/yassine/bootfs
+
 # The intermediate directory for compiled object files.
 BUILD = build/
 

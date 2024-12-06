@@ -1,3 +1,17 @@
+/**
+ * @file        aux.h
+ * @brief       Auxiliary register definitions for the Raspberry Pi.
+ * @description This header contains definitions and macros for working with auxiliary peripherals 
+ *              on the Raspberry Pi, such as the mini UART and SPI controllers.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #ifndef _AUX_H_
 #define _AUX_H_
 

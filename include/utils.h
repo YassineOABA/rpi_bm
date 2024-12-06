@@ -1,3 +1,17 @@
+/**
+ * @file        utils.h
+ * @brief       Utility functions and macros.
+ * @description This header contains generic utility functions and inline assembly snippets 
+ *              for performing low-level operations.
+ * 
+ * @version     1.0
+ * @date        2024-12-06
+ */
+
+
+
+
+
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
@@ -43,5 +57,34 @@ extern void put32(uint64_t addr, uint32_t val);
  * @return The 32-bit value stored at the specified memory address.
  */
 extern uint32_t get32(uint64_t addr);
+
+/**
+ * @brief Retrieves the current Exception Level (EL) of the processor.
+ * 
+ * This function reads the `CurrentEL` system register, which contains the 
+ * processor's current Exception Level. It isolates the Exception Level by 
+ * shifting the register value 2 bits to the right.
+ * 
+ * ## Register Format:
+ * The `CurrentEL` system register is a 32-bit register where:
+ * - Bits [31:4]: Reserved (0)
+ * - Bits [3:2]: Current Exception Level (EL) (e.g., 0b00 = EL0, 0b01 = EL1)
+ * - Bits [1:0]: Reserved (0)
+ * 
+ * Example Values:
+ * - `0b00000000_00000000_00000000_00000000_00000000_00000000_00001100` (EL3)
+ * - `0b00000000_00000000_00000000_00000000_00000000_00000000_00001000` (EL2)
+ * - `0b00000000_00000000_00000000_00000000_00000000_00000000_00000100` (EL1)
+ * - `0b00000000_00000000_00000000_00000000_00000000_00000000_00000000` (EL0)
+ * 
+ * ## Operation:
+ * 1. Read the `CurrentEL` register.
+ * 2. Shift the 4-bit value right by 2 bits to isolate the EL field.
+ * 3. Return the isolated value (0, 1, 2, or 3).
+ * 
+ * ## Return Value:
+ * - x0: The current Exception Level (0 = EL0, 1 = EL1, 2 = EL2, 3 = EL3).
+ */
+extern uint8_t get_el(void);
 
 #endif /* _UTILS_H_ */
