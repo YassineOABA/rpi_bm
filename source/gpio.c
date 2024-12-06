@@ -11,14 +11,18 @@
  */
 void gpio_init(void)
 {
-    // Set all GPIO pins to input by setting the Function Select registers to 0 (input mode)
-    *GPIO_FSEL0 = 0x00000000;
-    *GPIO_FSEL1 = 0x00000000;
-    *GPIO_FSEL2 = 0x00000000;
-    *GPIO_FSEL3 = 0x00000000;
-    *GPIO_FSEL4 = 0x00000000;
-    *GPIO_FSEL5 = 0x00000000;
+    uint8_t i;
+
+    // Loop through all GPFSEL registers (6 registers in total).
+    // Each GPFSEL register controls 10 GPIO pins (30 bits per register).
+    for (i = 0; i < 6; i++)
+    {
+        // Set all bits in the GPFSEL register to 0.
+        // This configures all pins controlled by the register as inputs (default state).
+        GPIO->GPFSEL[i] = 0;
+    }
 }
+
 
 /**
  * @brief Sets the function of a specific GPIO pin.
@@ -29,16 +33,31 @@ void gpio_init(void)
  * @param pin     The GPIO pin number (e.g., 0 to 53 on Raspberry Pi).
  * @param function The function to set the pin to (e.g., input, output, etc.).
  */
-void gpio_set_pin_function(uint32_t pin, uint32_t function)
+void gpio_set_pin_function(uint8_t pin, uint8_t function)
 {
-    uint32_t reg_index = pin / 10;        // Each register controls 10 GPIO pins
-    uint32_t shift = (pin % 10) * 3;      // Each pin is 3 bits in the register
-    volatile uint32_t *fsel_reg = (volatile uint32_t *)(uintptr_t)(GPIO_BASE + (reg_index * 4));
+    // Calculate the bit position within the GPFSEL register for the specified pin.
+    // Each pin requires 3 bits to specify its function.
+    uint8_t bitStart = (pin * 3) % 30;
 
-    // Clear the bits for the specified pin and set the new function
-    *fsel_reg &= ~(0x7 << shift);         // Clear the 3 bits for this pin
-    *fsel_reg |= (function << shift);     // Set the new function
+    // Determine which GPFSEL register controls the specified pin.
+    // Each GPFSEL register controls 10 pins (30 bits per register).
+    uint8_t reg = pin / 10;
+
+    // Read the current value of the selected GPFSEL register.
+    uint32_t selector = GPIO->GPFSEL[reg];
+
+    // Clear the 3 bits corresponding to the specified pin.
+    // Use a mask to set the 3 bits to 0 while preserving other bits.
+    selector &= ~(7 << bitStart);
+
+    // Set the desired function for the pin by writing the new value to the cleared bits.
+    // The `function` parameter specifies the desired mode (e.g., input, output, alternate function).
+    selector |= (function << bitStart);
+
+    // Write the updated value back to the GPFSEL register to apply the configuration.
+    GPIO->GPFSEL[reg] = selector;
 }
+
 
 /**
  * @brief Sets a GPIO pin to a high state (logic level 1).
@@ -48,18 +67,16 @@ void gpio_set_pin_function(uint32_t pin, uint32_t function)
  * 
  * @param pin     The GPIO pin number (e.g., 0 to 53 on Raspberry Pi).
  */
-void gpio_set_pin(uint32_t pin)
+void gpio_set_pin(uint8_t pin)
 {
-    // Set the corresponding bit in the GPIO_SET0 register to set the pin high
-    if (pin < 32)
-    {
-        *GPIO_SET0 = (1 << pin);
-    }
-    else
-    {
-        *GPIO_SET1 = (1 << (pin - 32));
-    }
+    // Determine which GPSET register to use.
+    // Each GPSET register controls up to 32 pins, so the register index is pin / 32.
+    // For example:
+    // - Pins 0-31 are controlled by GPSET[0].
+    // - Pins 32-63 are controlled by GPSET[1], and so on.
+    GPIO->GPSET[pin / 32] = (1 << (pin % 32));
 }
+
 
 /**
  * @brief Clears a GPIO pin to a low state (logic level 0).
@@ -69,17 +86,16 @@ void gpio_set_pin(uint32_t pin)
  * 
  * @param pin     The GPIO pin number (e.g., 0 to 53 on Raspberry Pi).
  */
-void gpio_clear_pin(uint32_t pin) {
-    // Set the corresponding bit in the GPIO_CLR0 register to clear the pin
-    if (pin < 32)
-    {
-        *GPIO_CLR0 = (1 << pin);
-    }
-    else
-    {
-        *GPIO_CLR1 = (1 << (pin - 32));
-    }
+void gpio_clear_pin(uint8_t pin)
+{
+    // Determine which GPCLR register to use.
+    // Each GPCLR register controls up to 32 pins, so the register index is pin / 32.
+    // For example:
+    // - Pins 0-31 are controlled by GPCLR[0].
+    // - Pins 32-63 are controlled by GPCLR[1], and so on.
+    GPIO->GPCLR[pin / 32] = (1 << (pin % 32));
 }
+
 
 /**
  * @brief Reads the state of a GPIO pin.
@@ -90,17 +106,10 @@ void gpio_clear_pin(uint32_t pin) {
  * 
  * @return        The current state of the pin (1 for high, 0 for low).
  */
-uint32_t gpio_read_pin(uint32_t pin) 
+uint8_t gpio_read_pin(uint8_t pin) 
 {
     // Read the state from the GPIO_LEV0 or GPIO_LEV1 register based on the pin number
-    if (pin < 32) 
-    {
-        return (*GPIO_LEV0 & (1 << pin)) ? 1 : 0;
-    } 
-    else
-    {
-        return (*GPIO_LEV1 & (1 << (pin - 32))) ? 1 : 0;
-    }
+    return (GPIO->GPLEV[pin / 32] & (1 << (pin % 32))) ? 1 : 0;
 }
 
 /**
@@ -113,39 +122,30 @@ uint32_t gpio_read_pin(uint32_t pin)
  * @param pin     The GPIO pin number (e.g., 0 to 53 on Raspberry Pi).
  * @param pud     The pull-up/down mode (e.g., 0 = none, 1 = pull-up, 2 = pull-down).
  */
-void gpio_pull_up_down(uint32_t pin, uint32_t pud)
+void gpio_pull_up_down(uint8_t pin, uint8_t pud)
 {
-    // Step 1: Write to GPPUD to set the required control signal
-    // pud: 0 = none (disable pull-up/down), 1 = pull-down, 2 = pull-up
-    *GPIO_PUD = pud;
+    // Set the desired pull-up/down value in the GPPUD register.
+    // `pud` should specify the type: 0 (disable), 1 (pull-down), or 2 (pull-up).
+    GPIO->GPPUD = pud;
 
-    // Step 2: Wait for 150 cycles (set-up time)
+    // Wait 150 cycles for the value to take effect (hardware requirement).
     delay(150);
 
-    // Step 3: Write to GPPUDCLK0/1 to clock the control signal into the GPIO pad(s)
-    // The clock is only applied to the specified pin
-    if (pin < 32)
-    {
-        *GPIO_PUDCLK0 = (1 << pin); // Apply to GPIO0-GPIO31
-    } else
-    {
-        *GPIO_PUDCLK1 = (1 << (pin - 32)); // Apply to GPIO32-GPIO53
-    }
+    // Enable the clock for the pin's pull-up/down configuration.
+    // This is done by writing a 1 to the bit corresponding to the pin in the GPPUDCLK register.
+    // The pin number is divided by 32 to determine the appropriate clock register (if multiple exist).
+    GPIO->GPPUDCLK[pin / 32] = 1 << (pin % 32);
 
-    // Step 4: Wait for 150 cycles (hold time)
+    // Wait another 150 cycles for the configuration to take effect.
     delay(150);
 
-    // Step 5: Write to GPPUD to remove the control signal
-    *(volatile uint32_t *)GPIO_PUD = 0;
+    // Clear the GPPUD register to remove the pull-up/down control signal.
+    // This step is necessary to avoid unintended behavior.
+    GPIO->GPPUD = 0;
 
-    // Step 6: Write to GPPUDCLK0/1 to remove the clock
-    if (pin < 32)
-    {
-        *GPIO_PUDCLK0 = 0;
-    }
-    else
-    {
-        *GPIO_PUDCLK1 = 0;
-    }
+    // Clear the clock register to finish the setup for the pin.
+    // This step prevents further changes to the pull-up/down state until explicitly reconfigured.
+    GPIO->GPPUDCLK[pin / 32] = 0;
 }
+
 

@@ -8,7 +8,7 @@
  * 
  * @param tick The number of ticks to wait before returning. Higher values result in longer delays.
  */
-.global delay
+.globl delay
 delay:
     subs x0, x0, #1     // 1. Subtract 1 from x0, setting flags
     bne delay           // 2. If x0 is not zero (result of subtraction), branch to 'delay'
@@ -24,7 +24,7 @@ delay:
  * @param addr The memory address where the value will be written.
  * @param val The 32-bit value to write to the specified address.
  */
-.global put32
+.globl put32
 put32:
     str w1, [x0]        // 1. Store the value of w1 into the address pointed by x0
     ret                 // 2. Return from function
@@ -40,7 +40,7 @@ put32:
  * 
  * @return The 32-bit value stored at the specified memory address.
  */
-.global get32
+.globl get32
 get32:
     ldr w0, [x0]        // 1. Load a 32-bit value from the address pointed to by x0 into w0
     ret                 // 2. Return from function

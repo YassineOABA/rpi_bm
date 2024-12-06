@@ -29,6 +29,9 @@ int kernel_main(void)
     // Send an initialization message to the UART terminal
     uart_send_string("Raspberry PI bare metal kernel initialization... \n");
 
+    // Send platform information to the UART terminal
+    uart_send_string("Platform : Raspberry PI 3 B + \n");
+
     // Infinite loop to continuously read from UART and echo received characters
     while(1)
     {

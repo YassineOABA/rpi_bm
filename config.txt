@@ -36,7 +36,7 @@ uart_2ndstage=1
 #GPIO26 | ARM_TDI
 #GPIO27 | ARM_TMS
 ###############################################################################################
-enable_jtag_gpio=1 
+#enable_jtag_gpio=1 
 
 
 ###############################################################################################
@@ -50,32 +50,4 @@ enable_jtag_gpio=1
 # The overlays uart2, uart3, uart4, and uart5 are used to enable the four additional UARTs 
 # on the Raspberry Pi 4. There are other UART-specific overlays in the folder. 
 ###############################################################################################
-#dtoverlay=miniuart-bt
-dtoverlay=disable-bt
-
-###############################################################################################
-# By default, HDMI audio output is enabled on all Raspberry Pi models with HDMI output
-###############################################################################################
-dtoverlay=vc4-kms-v3d,noaudio
-
-###############################################################################################
-# With this setting enabled (in Raspberry Pi OS it is enabled by default), 
-# the firmware will automatically load overlays for CSI cameras that it recognises. 
-# Set camera_auto_detect=0 to disable the setting.
-###############################################################################################
-camera_auto_detect=0
-
-###############################################################################################
-# With this setting enabled (it is enabled by default in Raspberry Pi OS), 
-# the firmware will automatically load overlays for DSI displays that it recognises. 
-# Set display_auto_detect=0 to disable.
-###############################################################################################
-display_auto_detect=0
-
-###############################################################################################
-###############################################################################################
-disable_commandline_tags=1
-
-###############################################################################################
-###############################################################################################
-armstub=armstub-new.bin
+dtoverlay=miniuart-bt

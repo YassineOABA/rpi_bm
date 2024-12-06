@@ -26,24 +26,15 @@ void uart_init(void)
     gpio_pull_up_down(MINI_UART_TXD, 0);
     gpio_pull_up_down(MINI_UART_RXD, 0);
 
-    *AUX_ENABLES        = 1;
-    *AUX_MU_CNTL_REG    = 0;
-    *AUX_MU_IER_REG     = 0;
-    *AUX_MU_LCR_REG     = 3;
-    *AUX_MU_MCR_REG     = 0;
-    *AUX_MU_BAUD_REG    = 271;
-    *AUX_MU_CNTL_REG    = 3;
+    AUX->ENABLES = 1;
+    AUX->MU_CNTL_REG = 0;
+    AUX->MU_IER_REG = 0;
+    AUX->MU_LCR_REG = 3;
+    AUX->MU_MCR_REG = 0;
+    AUX->MU_BAUD_REG = 433;
+    AUX->MU_CNTL_REG = 3;
 
-    uart_send('\n');
-    uart_send('M');
-    uart_send('I');
-    uart_send('N');
-    uart_send('I');
-    uart_send('U');
-    uart_send('A');
-    uart_send('R');
-    uart_send('T');
-    uart_send('\n');
+    uart_send('\r');
     uart_send('\n');
     uart_send('\n');
 }
@@ -61,7 +52,7 @@ char uart_recv(void)
     // Wait until the UART has received data.
     // The Data Ready Flag (bit 0) in the AUX_MU_LCR_REG register is checked 
     // to see if new data has been received and is ready to be read.
-    while(!(*AUX_MU_LCR_REG & 0x00000001)) 
+    while(!(AUX->MU_LSR_REG & 0x01)) 
     {
         // Busy-wait loop: does nothing while waiting for the Data Ready Flag to be set.
         // This ensures that the function doesn't read from the UART until new data is available.
@@ -71,7 +62,7 @@ char uart_recv(void)
     // Retrieve the received character from the UART data register.
     // The character is stored in the lower 8 bits of the AUX_MU_LCR_REG register.
     // The `& 0xFF` operation ensures that only the 8 least significant bits (the character) are returned.
-    return (*AUX_MU_LCR_REG & 0xFF);
+    return (AUX->MU_IO_REG & 0xFF);
 }
 
 /**
@@ -88,7 +79,7 @@ void uart_send(char c)
     // Wait until the UART transmitter is ready to send data.
     // The Transmitter Empty Flag (bit 5) in the AUX_MU_LCR_REG register 
     // is checked to determine if the UART can accept new data.
-    while(!((*AUX_MU_LCR_REG) & 0x00000020)) 
+    while(!(AUX->MU_LSR_REG & 0x20)) 
     {
         // Busy-wait loop: does nothing while waiting for the flag to be set.
         // This ensures that we don't attempt to send data until the UART is ready.
@@ -97,7 +88,7 @@ void uart_send(char c)
 
     // Transmit the character `c` by writing it to the UART's data register.
     // The character will be sent out through the Mini UART hardware.
-    *AUX_MU_IO_REG = c;
+    AUX->MU_IO_REG = c;
 }
 
 
@@ -114,10 +105,14 @@ void uart_send_string(char *str)
 {
     // Loop through each character of the string
     // Continue looping until we reach the null terminator ('\0')
-    while (*str != '\0')  // The string is terminated by the null character '\0'
-    {
-        uart_send(*str);  // Send the current character via UART
-        str++;  // Move the pointer to the next character in the string
+    while(*str) {
+        if (*str == '\n') 
+        {
+            uart_send('\r');
+        }
+
+        uart_send(*str);
+        str++;
     }
 }
 

@@ -42,6 +42,6 @@ extern void put32(uint64_t addr, uint32_t val);
  * 
  * @return The 32-bit value stored at the specified memory address.
  */
-extern unsigned int get32(uint64_t addr);
+extern uint32_t get32(uint64_t addr);
 
 #endif /* _UTILS_H_ */

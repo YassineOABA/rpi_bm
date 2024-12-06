@@ -5,41 +5,50 @@
 #include "base.h"
 
 // Base address for auxiliary peripherals
-#define AUX_BASE       (uint32_t)(PIBASE + 0x00215000)
+#define AUX_BASE_ADDRESS    (PIBASE + 0x00215000)
 
-// Auxiliary Interrupt Register
-#define AUX_IRQ        ((volatile uint32_t *)(AUX_BASE + 0x0000)) // 3 bytes
-#define AUX_IRQ_MASK   0x00000007 // Mask for interrupt status (3 bits)
+// Defines the AUX (Auxiliary) peripheral register structure.
+// This structure represents the memory-mapped registers used for auxiliary functions
+// such as UART communication or SPI interfaces on the hardware.
+struct AUX_Registers {
+    volatile uint32_t IRQ;                // 0x7E21 5000 - Auxiliary Interrupt
+    volatile uint32_t ENABLES;            // 0x7E21 5004 - Auxiliary enables
+    volatile uint32_t reserved1[14];      // Reserved (0x7E21 5008 - 0x7E21 503C)
 
-// Auxiliary Enables Register
-#define AUX_ENABLES     ((volatile uint32_t *)(AUX_BASE + 0x0004)) // 3 bytes
-#define AUX_ENABLES_MASK 0x00000007 // Mask for auxiliary enables (3 bits)
+    // Mini UART Registers
+    volatile uint32_t MU_IO_REG;          // 0x7E21 5040 - Mini UART I/O Data
+    volatile uint32_t MU_IER_REG;         // 0x7E21 5044 - Mini UART Interrupt Enable
+    volatile uint32_t MU_IIR_REG;         // 0x7E21 5048 - Mini UART Interrupt Identify
+    volatile uint32_t MU_LCR_REG;         // 0x7E21 504C - Mini UART Line Control
+    volatile uint32_t MU_MCR_REG;         // 0x7E21 5050 - Mini UART Modem Control
+    volatile uint32_t MU_LSR_REG;         // 0x7E21 5054 - Mini UART Line Status
+    volatile uint32_t MU_MSR_REG;         // 0x7E21 5058 - Mini UART Modem Status
+    volatile uint32_t MU_SCRATCH;         // 0x7E21 505C - Mini UART Scratch
+    volatile uint32_t MU_CNTL_REG;        // 0x7E21 5060 - Mini UART Extra Control
+    volatile uint32_t MU_STAT_REG;        // 0x7E21 5064 - Mini UART Extra Status
+    volatile uint32_t MU_BAUD_REG;        // 0x7E21 5068 - Mini UART Baudrate
+    volatile uint32_t reserved2[5];       // Reserved (0x7E21 506C - 0x7E21 507C)
 
-// Mini UART Registers
-#define AUX_MU_IO_REG        ((volatile uint32_t *)(AUX_BASE + 0x0040)) // I/O data register
-#define AUX_MU_IER_REG       ((volatile uint32_t *)(AUX_BASE + 0x0044)) // Interrupt Enable register
-#define AUX_MU_IIR_REG       ((volatile uint32_t *)(AUX_BASE + 0x0048)) // Interrupt Identification register
-#define AUX_MU_LCR_REG       ((volatile uint32_t *)(AUX_BASE + 0x004C)) // Line Control register
-#define AUX_MU_MCR_REG       ((volatile uint32_t *)(AUX_BASE + 0x0050)) // Modem Control register
-#define AUX_MU_LSR_REG       ((volatile uint32_t *)(AUX_BASE + 0x0054)) // Line Status register
-#define AUX_MU_MSR_REG       ((volatile uint32_t *)(AUX_BASE + 0x0058)) // Modem Status register
-#define AUX_MU_SCRATCH_REG   ((volatile uint32_t *)(AUX_BASE + 0x005C)) // Scratch register
-#define AUX_MU_CNTL_REG      ((volatile uint32_t *)(AUX_BASE + 0x0060)) // Extra Control register
-#define AUX_MU_STAT_REG      ((volatile uint32_t *)(AUX_BASE + 0x0064)) // Extra Status register
-#define AUX_MU_BAUD_REG      ((volatile uint32_t *)(AUX_BASE + 0x0068)) // Baudrate register
+    // SPI 1 Registers
+    volatile uint32_t SPI0_CNTL0_REG;     // 0x7E21 5080 - SPI 1 Control Register 0
+    volatile uint32_t SPI0_CNTL1_REG;     // 0x7E21 5084 - SPI 1 Control Register 1
+    volatile uint32_t SPI0_STAT_REG;      // 0x7E21 5088 - SPI 1 Status
+    volatile uint32_t SPI0_IO_REG;        // 0x7E21 508C - SPI 1 Data
+    volatile uint32_t SPI0_PEEK_REG;      // 0x7E21 5090 - SPI 1 Peek
+    volatile uint32_t reserved3[11];      // Reserved (0x7E21 5094 - 0x7E21 50BC)
 
-// SPI 1 Registers
-#define AUX_SPI0_CNTL0_REG   ((volatile uint32_t *)(AUX_BASE + 0x0080)) // SPI 1 Control register 0
-#define AUX_SPI0_CNTL1_REG   ((volatile uint32_t *)(AUX_BASE + 0x0084)) // SPI 1 Control register 1
-#define AUX_SPI0_STAT_REG    ((volatile uint32_t *)(AUX_BASE + 0x0088)) // SPI 1 Status register
-#define AUX_SPI0_IO_REG      ((volatile uint32_t *)(AUX_BASE + 0x0090)) // SPI 1 Data register
-#define AUX_SPI0_PEEK_REG    ((volatile uint32_t *)(AUX_BASE + 0x0094)) // SPI 1 Peek register
+    // SPI 2 Registers
+    volatile uint32_t SPI1_CNTL0_REG;     // 0x7E21 50C0 - SPI 2 Control Register 0
+    volatile uint32_t SPI1_CNTL1_REG;     // 0x7E21 50C4 - SPI 2 Control Register 1
+    volatile uint32_t SPI1_STAT_REG;      // 0x7E21 50C8 - SPI 2 Status
+    volatile uint32_t reserved4[2];       // Reserved (0x7E21 50CC - 0x7E21 50D0)
+    volatile uint32_t SPI1_IO_REG;        // 0x7E21 50D0 - SPI 2 Data
+    volatile uint32_t SPI1_PEEK_REG;      // 0x7E21 50D4 - SPI 2 Peek
+};
 
-// SPI 2 Registers
-#define AUX_SPI1_CNTL0_REG   ((volatile uint32_t *)(AUX_BASE + 0x00C0)) // SPI 2 Control register 0
-#define AUX_SPI1_CNTL1_REG   ((volatile uint32_t *)(AUX_BASE + 0x00C4)) // SPI 2 Control register 1
-#define AUX_SPI1_STAT_REG    ((volatile uint32_t *)(AUX_BASE + 0x00C8)) // SPI 2 Status register
-#define AUX_SPI1_IO_REG      ((volatile uint32_t *)(AUX_BASE + 0x00D0)) // SPI 2 Data register
-#define AUX_SPI1_PEEK_REG    ((volatile uint32_t *)(AUX_BASE + 0x00D4)) // SPI 2 Peek register
+// Define AUX as a pointer to the AUX_Registers structure.
+// This macro allows easy access to the auxiliary peripheral registers through a structured pointer.
+// AUX_BASE_ADDRESS should be defined elsewhere as the base address of the AUX peripheral in memory.
+#define AUX ((struct AUX_Registers *)(AUX_BASE_ADDRESS))
 
 #endif // _AUX_H_

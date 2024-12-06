@@ -1,7 +1,7 @@
 #include "mm.h"
 
 
-.section "text.boot"
+.section ".text.boot"
 
 .globl _start
 _start:
