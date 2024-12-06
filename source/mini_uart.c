@@ -12,31 +12,57 @@
 
 
 /**
- * @brief Initializes the UART interface for serial communication.
+ * @brief Initializes the Mini UART on the Raspberry Pi for serial communication.
  * 
- * This function configures the UART hardware (baud rate, data bits, stop bits, etc.)
- * and prepares it for communication. It should be called before using any UART 
- * communication functions.
+ * This function configures the necessary GPIO pins for UART (TX and RX), sets the
+ * appropriate alternate function, configures the UART parameters (such as baud rate),
+ * and enables the Mini UART for communication. It also ensures that the UART pins have
+ * no pull-up or pull-down resistors enabled. After initialization, the function sends
+ * an initial message to the UART terminal to indicate that the kernel initialization has started.
+ * 
+ * GPIO pins are configured to alternate function 5 (Mini UART) and the UART is set to 8 data bits,
+ * no parity, and 1 stop bit, with a baud rate of 115200 (433 for 3.6864 MHz clock).
+ * 
+ * This function is intended to be called during the early stages of the Raspberry Pi bare metal
+ * kernel initialization process.
+ * 
+ * @note Assumes that the GPIO pin numbers for Mini UART TXD and RXD are already defined
+ *       (e.g., MINI_UART_TXD and MINI_UART_RXD).
+ * 
+ * @return void
  */
 void uart_init(void)
 {
-    gpio_set_pin_function(MINI_UART_TXD, GPIO_ALT5);
-    gpio_set_pin_function(MINI_UART_RXD, GPIO_ALT5);
+    // Set the GPIO pins for Mini UART TX (Transmit) and RX (Receive) to alternate function 5.
+    // This configuration enables the UART signals on the GPIO pins for communication.
+    gpio_set_pin_function(MINI_UART_TXD, GPIO_ALT5);  // Set the TXD pin to use alternate function 5
+    gpio_set_pin_function(MINI_UART_RXD, GPIO_ALT5);  // Set the RXD pin to use alternate function 5
 
-    gpio_pull_up_down(MINI_UART_TXD, 0);
-    gpio_pull_up_down(MINI_UART_RXD, 0);
+    // Configure pull-up/down resistors for the TX and RX pins.
+    // Setting both pins to '0' disables any pull-up or pull-down resistors.
+    gpio_pull_up_down(MINI_UART_TXD, 0);  // No pull-up or pull-down for TXD
+    gpio_pull_up_down(MINI_UART_RXD, 0);  // No pull-up or pull-down for RXD
 
-    AUX->ENABLES = 1;
-    AUX->MU_CNTL_REG = 0;
-    AUX->MU_IER_REG = 0;
-    AUX->MU_LCR_REG = 3;
-    AUX->MU_MCR_REG = 0;
-    AUX->MU_BAUD_REG = 433;
-    AUX->MU_CNTL_REG = 3;
+    // Enable the Mini UART (AUX) by setting the relevant bit in the ENABLES register.
+    AUX->ENABLES = 1;  // Enable the AUX (Mini UART) peripheral
 
-    uart_send('\r');
-    uart_send('\n');
-    uart_send('\n');
+    // Configure Mini UART control registers.
+    AUX->MU_CNTL_REG = 0;     // Disable Mini UART to configure it safely
+    AUX->MU_IER_REG = 0;      // Disable interrupts for the Mini UART
+    AUX->MU_LCR_REG = 3;      // Set Line Control Register to 3 (8 data bits, no parity, 1 stop bit)
+    AUX->MU_MCR_REG = 0;      // Set Modem Control Register to 0 (no control)
+    
+    // Set the baud rate for the Mini UART.
+    // The baud rate is set to 433 (typically used for 115200 baud with a 3.6864 MHz clock).
+    AUX->MU_BAUD_REG = 433;   // Set the baud rate to 115200 (433 for 3.6864 MHz clock)
+
+    // Enable the Mini UART for use.
+    AUX->MU_CNTL_REG = 3;     // Re-enable the Mini UART with TX and RX enabled
+
+    // Send a carriage return and newline characters to the UART terminal to indicate initialization is complete.
+    uart_send('\r');  // Send a carriage return
+    uart_send('\n');  // Send a newline
+    uart_send('\n');  // Send another newline for separation
 }
 
 /**
@@ -91,27 +117,34 @@ void uart_send(char c)
     AUX->MU_IO_REG = c;
 }
 
-
 /**
- * @brief Sends a string of characters over the UART.
+ * @brief Sends a null-terminated string over the UART.
  * 
- * This function sends a null-terminated string over the UART interface.
- * Each character of the string is transmitted sequentially until the null 
- * terminator is reached. The function blocks until all characters have been sent.
+ * This function sends a string of characters to the UART one by one. If a newline 
+ * character ('\n') is encountered, a carriage return ('\r') is first sent, as required
+ * by many terminal emulators to properly handle newlines in serial communication.
+ * The function continues sending characters until the null terminator ('\0') is reached, 
+ * which marks the end of the string.
  * 
- * @param str Pointer to the null-terminated string to be sent via UART.
+ * @param str A pointer to the null-terminated string to be sent over UART.
+ * 
+ * @return void
  */
 void uart_send_string(char *str)
 {
     // Loop through each character of the string
     // Continue looping until we reach the null terminator ('\0')
     while(*str) {
+        // If the character is a newline, send a carriage return first for proper formatting
         if (*str == '\n') 
         {
-            uart_send('\r');
+            uart_send('\r');  // Send carriage return before newline for proper display on UART terminal
         }
 
+        // Send the current character
         uart_send(*str);
+        
+        // Move to the next character in the string
         str++;
     }
 }
