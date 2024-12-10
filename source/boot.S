@@ -13,7 +13,7 @@
 
 
 #include "mm.h"
-
+#include "sysregs.h"
 
 .section ".text.boot"
 
@@ -25,6 +25,28 @@ _start:
     b proc_hang             // 4. If x0 is not zero (indicating a non-master core), branch to 'proc_hang'
 
 master:
+    ldr x0, =CPACR_EL1_VAL  // Load the value for configuring coprocessor access (e.g., SIMD, FP)
+    msr cpacr_el1, x0       // Write the configuration to CPACR_EL1 (EL1 Coprocessor Access Control Register)
+
+    ldr x0, =SCTLR_EL1_VAL  // Load the configuration value for System Control Register at EL1
+    msr sctlr_el1, x0       // Write the value into SCTLR_EL1 (controls memory system settings like MMU, caches, etc.)
+
+    ldr x0, =HCR_EL2_VAL    // Load the configuration value for HCR_EL2
+    msr hcr_el2, x0         // Write the value into HCR_EL2 (Hypervisor Configuration Register for EL2 settings)
+
+    ldr x0, =SCR_EL3_VAL    // Load the configuration value for SCR_EL3
+    msr scr_el3, x0         // Write the value into SCR_EL3 (Secure Configuration Register for EL3 settings)
+
+    ldr x0, =SPSR_EL3_VAL   // Load the configuration value for SPSR_EL3
+    msr spsr_el3, x0        // Write the value into SPSR_EL3 (Saved Program Status Register for EL3)
+
+    adr x0, el1_secure       // Load the address of the EL1 entry point into x0
+    msr elr_el3, x0         // Write the EL1 entry point address into ELR_EL3 (Exception Link Register at EL3)
+
+    eret                    // Execute the Exception Return instruction to transition to EL1                
+
+
+el1_secure:
     adr x0, bss_begin       // 1. Load address of bss_begin into x0
     adr x1, bss_end         // 2. Load address of bss_end into x1
     sub x1, x1, x0          // 3. Calculate the size of the .bss section (bss_end - bss_begin)

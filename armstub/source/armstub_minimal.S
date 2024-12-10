@@ -102,4 +102,4 @@ stub_version:           // Define the label stub_version.
 .org 0xfc               // Set the memory offset to 0xFC for the following symbol.
 .globl kernel_entry32   // Make the kernel_entry32 label globally accessible.
 kernel_entry32:         // Define the label kernel_entry32.
-    .word 0x0           // Store the 32-bit value 0x0 (placeholder for kernel entry address).
+    .word 0           // Store the 32-bit value 0x0 (placeholder for kernel entry address).
