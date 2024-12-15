@@ -15,10 +15,7 @@
 #ifndef _BASE_H_
 #define _BASE_H_
 
+// Base address for the Raspberry Pi peripheral registers
 #define PIBASE  0x3F000000
-
-
-
-
 
 #endif /* _BASE_H_ */

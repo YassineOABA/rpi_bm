@@ -16,7 +16,7 @@
 #include "gpio.h"
 #include "mini_uart.h"
 #include "uart_printf.h"
-
+#include "irq.h"
 
 /**
  * @brief The main entry point for the kernel.
@@ -41,20 +41,30 @@ int kernel_main(void)
     // Initialize the UART system for serial communication
     uart_init();
 
-    // Send an initialization message to the UART terminal
+    // Send an initialization message
     uart_printf("Raspberry PI bare metal kernel initialization... \n");
 
-    // Send platform information to the UART terminal
+    // Send platform information
     uart_printf("Platform : Raspberry PI %d B + \n",3);
 
     // Send current exception level EL
     uart_printf("Current EL : %i\n",get_el());
 
-    // Infinite loop to continuously read from UART and echo received characters
+    // Prints the current Stack Pointer (SP) value using UART
+    uart_printf("Curren SP : %i\n", get_sp());
+
+    // Initializes the IRQ vector table to handle interrupts
+    irq_init();
+
+    // Configures the interrupt controller to enable IRQ handling
+    enable_interrupt_controller();
+
+    // Enables interrupts by clearing the DAIF register, allowing IRQs to be serviced
+    irq_enable();
+    // Infinite loop
     while(1)
     {
-        // Receive a character via UART and send it back (echo)
-        uart_send(uart_recv());
+
     }
 
     // Return 0 (this return is never actually reached)

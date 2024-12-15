@@ -62,7 +62,7 @@ void uart_init(void)
 
     // Configure Mini UART control registers.
     AUX->MU_CNTL_REG = 0;     // Disable Mini UART to configure it safely
-    AUX->MU_IER_REG = 0;      // Disable interrupts for the Mini UART
+    AUX->MU_IER_REG = 1;      // Disable interrupts for the Mini UART
     AUX->MU_LCR_REG = 3;      // Set Line Control Register to 3 (8 data bits, no parity, 1 stop bit)
     AUX->MU_MCR_REG = 0;      // Set Modem Control Register to 0 (no control)
     

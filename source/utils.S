@@ -88,12 +88,31 @@ get32:
  */
 .globl get_el    
 get_el:
-    mrs x0, CurrentEL        // Move the value of the CurrentEL system register into x0
-                             // CurrentEL is a 4-bit register where the top 2 bits represent the EL
-    lsr x0, x0, #2           // Logical Shift Right by 2 bits to isolate the EL value
-                             // After shifting:
-                             // - EL3: 0b11 (3)
-                             // - EL2: 0b10 (2)
-                             // - EL1: 0b01 (1)
-                             // - EL0: 0b00 (0)
-    ret                      // Return to the caller, with the EL value in x0
+    mrs x0, CurrentEL   // Move the value of the CurrentEL system register into x0
+                        // CurrentEL is a 4-bit register where the top 2 bits represent the EL
+    lsr x0, x0, #2      // Logical Shift Right by 2 bits to isolate the EL value
+                        // After shifting:
+                        // - EL3: 0b11 (3)
+                        // - EL2: 0b10 (2)
+                        // - EL1: 0b01 (1)
+                        // - EL0: 0b00 (0)
+    ret                 // Return to the caller, with the EL value in x0
+
+/**
+ * @brief Retrieves the current Stack Pointer (SP) value.
+ * 
+ * This function reads the `SPSel` system register, which indicates the current
+ * stack pointer selection, and returns the value of the stack pointer (SP).
+ * 
+ * ## Operation:
+ * 1. Read the `SPSel` register into the x0 register.
+ * 2. Return the value in the x0 register, which holds the current stack pointer.
+ * 
+ * ## Return Value:
+ * - x0: The current Stack Pointer (SP) value.
+ */
+.globl get_sp
+get_sp:
+    mrs x0, SPSel   // Move the value of the SPSel system register into x0
+                    // SPSel holds the value of the current stack pointer
+    ret             // Return to the caller, with the stack pointer value in x0

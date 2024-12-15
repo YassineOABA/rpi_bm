@@ -87,4 +87,19 @@ extern uint32_t get32(uint64_t addr);
  */
 extern uint8_t get_el(void);
 
+/**
+ * @brief Retrieves the current Stack Pointer (SP) value.
+ * 
+ * This function reads the `SPSel` system register, which indicates the current
+ * stack pointer selection, and returns the value of the stack pointer (SP).
+ * 
+ * ## Operation:
+ * 1. Read the `SPSel` register into the x0 register.
+ * 2. Return the value in the x0 register, which holds the current stack pointer.
+ * 
+ * ## Return Value:
+ * - x0: The current Stack Pointer (SP) value.
+ */
+extern uint8_t get_sp(void);
+
 #endif /* _UTILS_H_ */
