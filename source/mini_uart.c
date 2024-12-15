@@ -58,25 +58,29 @@ void uart_init(void)
     gpio_pull_up_down(MINI_UART_RXD, 0);  // No pull-up or pull-down for RXD
 
     // Enable the Mini UART (AUX) by setting the relevant bit in the ENABLES register.
-    AUX->ENABLES = 1;  // Enable the AUX (Mini UART) peripheral
+    AUX->ENABLES = 1;           // Enable the AUX (Mini UART) peripheral
 
     // Configure Mini UART control registers.
-    AUX->MU_CNTL_REG = 0;     // Disable Mini UART to configure it safely
-    AUX->MU_IER_REG = 1;      // Disable interrupts for the Mini UART
-    AUX->MU_LCR_REG = 3;      // Set Line Control Register to 3 (8 data bits, no parity, 1 stop bit)
-    AUX->MU_MCR_REG = 0;      // Set Modem Control Register to 0 (no control)
-    
+    AUX->MU_CNTL_REG = 0;       // Disable Mini UART to configure it safely
+    AUX->MU_IER_REG = 0b1101;   // Configure Mini UART Interrupt Enable Register (MU_IER_REG)
+                                // - Enable Receiver Interrupt (bit 0)
+                                // - Disable Transmitter Interrupt (bit 1)
+                                // - Must be set to 1 (bit 2 and bit 3)
+
+    AUX->MU_LCR_REG = 3;        // Set Line Control Register to 3 (8 data bits, no parity, 1 stop bit)
+    AUX->MU_MCR_REG = 0;        // Set Modem Control Register to 0 (no control)
+
     // Set the baud rate for the Mini UART.
     // The baud rate is set to 433 (typically used for 115200 baud with a 3.6864 MHz clock).
-    AUX->MU_BAUD_REG = 433;   // Set the baud rate to 115200 (433 for 3.6864 MHz clock)
+    AUX->MU_BAUD_REG = 433;     // Set the baud rate to 115200 (433 for 3.6864 MHz clock)
 
     // Enable the Mini UART for use.
-    AUX->MU_CNTL_REG = 3;     // Re-enable the Mini UART with TX and RX enabled
+    AUX->MU_CNTL_REG = 3;       // Re-enable the Mini UART with TX and RX enabled
 
     // Send a carriage return and newline characters to the UART terminal to indicate initialization is complete.
-    uart_send('\r');  // Send a carriage return
-    uart_send('\n');  // Send a newline
-    uart_send('\n');  // Send another newline for separation
+    uart_send('\n');            // Send a newline
+    uart_send('\n');            // Send another newline for separation
+    uart_send('\r');            // Send a carriage return
 }
 
 /**
