@@ -19,7 +19,7 @@
 #include "base.h"
 
 // GPIO Base address (BCM2835)
-#define GPIO_BASE    (PIBASE + 0x00200000)
+#define GPIO_BASE    (PIBASE + 0x200000)
 
 // GPIO Register Structure for BCM2835
 // This structure defines the memory-mapped GPIO registers for the BCM2835 SoC.

@@ -17,7 +17,7 @@
 #include "mini_uart.h"
 #include "uart_printf.h"
 #include "irq.h"
-
+#include "timer.h"
 /**
  * @brief The main entry point for the kernel.
  * 
@@ -61,6 +61,14 @@ int kernel_main(void)
 
     // Enables interrupts by clearing the DAIF register, allowing IRQs to be serviced
     irq_enable();
+
+    // Initialize Timer 1 for a specific configuration (e.g., periodic interrupts or one-shot mode)
+    timer_init(TIMER_1);
+
+    // Initialize Timer 3 for a specific configuration (e.g., periodic interrupts or one-shot mode)
+    timer_init(TIMER_3);
+
+
     // Infinite loop
     while(1)
     {

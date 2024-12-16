@@ -17,7 +17,10 @@
 #include "base.h"
 
 // Base address for the ARM interrupt registers.
-#define IRQ_BASE_ADDR   (PIBASE + 0x0000B200)
+#define IRQ_BASE_ADDR   (PIBASE + 0xB200)
+
+#define BIT_0(x)                    (0 << x)  // Set bit to 0 at position x
+#define BIT_1(x)                    (1 << x)  // Set bit to 1 at position x
 
 /**
  * @brief Structure representing the ARM interrupt registers.
@@ -35,9 +38,23 @@ struct IRQ_Registers{
     volatile uint32_t DisableBasicIRQs;     // 0x224: Disable Basic IRQs Register
 };
 
-#define IRQ_REG         ((struct IRQ_Registers *)(IRQ_BASE_ADDR)) // Pointer to the IRQ registers
+// Pointer to the IRQ registers
+#define IRQ_REG         ((struct IRQ_Registers *)(IRQ_BASE_ADDR))
 
-#define AUX_IRQ         (1 << 29) // Bit 29 corresponds to AUX IRQ
+// Bit 0 correponds to System Timer 0
+#define TIMER_0_IRQ     BIT_1(0)
+
+// Bit 1 correponds to System Timer 1
+#define TIMER_1_IRQ     BIT_1(1)
+
+// Bit 2 correponds to System Timer 2
+#define TIMER_2_IRQ     BIT_1(2)
+
+// Bit 3 correponds to System Timer 3
+#define TIMER_3_IRQ     BIT_1(3)
+
+// Bit 29 corresponds to AUX IRQ
+#define AUX_IRQ         BIT_1(29)
 
 /**
  * @brief       Initialize the IRQ vector table.

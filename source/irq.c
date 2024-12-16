@@ -16,6 +16,7 @@
 #include "entry.h"
 #include "irq.h"
 #include "aux.h"
+#include "timer.h"
 
 /**
  * @brief       Array of error messages for invalid exception entries.
@@ -69,33 +70,62 @@ void show_invalid_entry_message(uint32_t type, uint64_t esr, uint64_t address)
  */
 void enable_interrupt_controller(void) 
 {
-    IRQ_REG->EnableIRQs1 = AUX_IRQ;   // Enable IRQs for auxiliary interrupts
+    // Enable IRQs
+    IRQ_REG->EnableIRQs1 = AUX_IRQ | TIMER_1_IRQ | TIMER_3_IRQ;
 }
 
 /**
  * @brief       Handle pending IRQs.
  * @description This function processes pending interrupts and handles auxiliary
- *              device IRQs, such as UART data reception.
+ *              device IRQs, such as UART data reception, as well as timer interrupts.
  */
 void handle_irq(void) 
 {
     uint32_t irq;
 
-    irq = IRQ_REG->IRQPending1;       // Read pending IRQs from the interrupt register
+    // Read pending IRQs from the interrupt register
+    irq = IRQ_REG->IRQPending1;
 
-    while (irq)                       // Process all pending IRQs
+    // Process all pending IRQs
+    while (irq)
     {
-        if (irq & AUX_IRQ)            // Check if the IRQ is from the auxiliary device
+        // Check if the IRQ is from the auxiliary device (e.g., UART)
+        if (irq & AUX_IRQ)
         {
-            irq &= ~AUX_IRQ;          // Clear the AUX_IRQ flag
+            // Clear the AUX_IRQ flag to acknowledge the interrupt
+            irq &= ~AUX_IRQ;
 
             // Handle UART data while it is available
             while ((AUX->MU_IIR_REG & 4) == 4) 
             {
-                uart_printf("UART Recv: ");  // Log received UART data
-                uart_send(uart_recv());      // Echo received data
-                uart_printf("\t\n");             // Send newline
+                // Log received UART data
+                uart_printf("UART Recv: ");   
+                // Echo the received data back
+                uart_send(uart_recv());       
+                // Send a newline for clarity
+                uart_printf("\t\n");          
             }
+        }
+
+        // Check if the interrupt is from Timer 1
+        if (irq & TIMER_1_IRQ)
+        {
+            // Clear the TIMER_1_IRQ flag to acknowledge the interrupt
+            irq &= ~TIMER_1_IRQ;
+
+            // Call the timer handler for Timer 1
+            handle_timer(TIMER_1);
+        }
+
+        // Check if the interrupt is from Timer 3
+        if (irq & TIMER_3_IRQ)
+        {
+            // Clear the TIMER_3_IRQ flag to acknowledge the interrupt
+            irq &= ~TIMER_3_IRQ;
+
+            // Call the timer handler for Timer 3
+            handle_timer(TIMER_3);
         }
     }
 }
+

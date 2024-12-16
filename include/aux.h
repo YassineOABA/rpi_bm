@@ -19,7 +19,7 @@
 #include "base.h"
 
 // Base address for auxiliary peripherals
-#define AUX_BASE_ADDRESS    (PIBASE + 0x00215000)
+#define AUX_BASE_ADDRESS    (PIBASE + 0x215000)
 
 // Defines the AUX (Auxiliary) peripheral register structure.
 // This structure represents the memory-mapped registers used for auxiliary functions
