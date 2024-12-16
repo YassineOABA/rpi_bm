@@ -71,7 +71,7 @@ void show_invalid_entry_message(uint32_t type, uint64_t esr, uint64_t address)
 void enable_interrupt_controller(void) 
 {
     // Enable IRQs
-    IRQ_REG->EnableIRQs1 = AUX_IRQ | TIMER_1_IRQ | TIMER_3_IRQ;
+    IRQ_REG->EnableIRQs1 = AUX_IRQ | TIMER_1_IRQ;
 }
 
 /**

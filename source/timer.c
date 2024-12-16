@@ -15,6 +15,7 @@
 #include "mini_uart.h"
 #include "uart_printf.h"
 #include "irq.h"
+#include "act_led.h"
 
 static uint32_t timer_get_lower(void);
 static uint32_t timer_get_higher(void);
@@ -80,7 +81,8 @@ uint64_t timer_get_ticks(void)
     uint32_t lo = timer_get_lower();   // Get the lower 32 bits of the timer
 
     // Double check if the high value has changed after reading it
-    if (hi != timer_get_higher()) {    // If the high part has changed since it was first read
+    if (hi != timer_get_higher())      // If the high part has changed since it was first read
+    {
         hi = timer_get_higher();       // Re-read the higher 32 bits
         lo = timer_get_lower();        // Re-read the lower 32 bits as well
     }
@@ -97,17 +99,17 @@ uint64_t timer_get_ticks(void)
 void timer_init(uint8_t timer_idx)
 {
     uint32_t current_val;
-    
+
     if(TIMER_1 == timer_idx)
     {
         current_val = timer_get_lower() + ARM_CLOCK_FREQUENCY_HZ;
         timer_set_compare(timer_idx,current_val);
+        act_led_toggle();
     }
 
     if(TIMER_3 == timer_idx)
     {
-        current_val = timer_get_lower() + ARM_CLOCK_FREQUENCY_HZ/4;
-        timer_set_compare(timer_idx,current_val);
+        // not used now
     }
 }
 
@@ -121,5 +123,4 @@ void handle_timer(uint8_t timer_idx)
 {
     timer_init(timer_idx);
     timer_clear_interrupt(timer_idx);
-    uart_printf("Timer %i is due \t\n", timer_idx);
 }

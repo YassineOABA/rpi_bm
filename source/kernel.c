@@ -18,6 +18,10 @@
 #include "uart_printf.h"
 #include "irq.h"
 #include "timer.h"
+#include "act_led.h"
+
+
+
 /**
  * @brief The main entry point for the kernel.
  * 
@@ -40,6 +44,9 @@ int kernel_main(void)
 
     // Initialize the UART system for serial communication
     uart_init();
+
+    // Initialize the ACT LED GPIO pin
+    act_led_init();
 
     // Send an initialization message
     uart_printf("Raspberry PI bare metal kernel initialization... \n");
@@ -64,10 +71,6 @@ int kernel_main(void)
 
     // Initialize Timer 1 for a specific configuration (e.g., periodic interrupts or one-shot mode)
     timer_init(TIMER_1);
-
-    // Initialize Timer 3 for a specific configuration (e.g., periodic interrupts or one-shot mode)
-    timer_init(TIMER_3);
-
 
     // Infinite loop
     while(1)
