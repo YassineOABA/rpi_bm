@@ -24,7 +24,7 @@
 #define TIMER_BASE_ADDR     (PIBASE + 0x3000)
 
 // 1.2 GHz for the ARM core clock
-#define ARM_CLOCK_FREQUENCY_HZ 1200000
+#define ARM_CLOCK_FREQUENCY_HZ 1000000
 
 // System Timer Register Structure
 struct TIMER_Registers {
