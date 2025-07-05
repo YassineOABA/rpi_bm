@@ -17,7 +17,7 @@
 #include "irq.h"
 #include "aux.h"
 #include "timer.h"
-
+#include "dht22.h"
 /**
  * @brief       Array of error messages for invalid exception entries.
  * @description This array maps exception types to corresponding error messages
@@ -82,6 +82,8 @@ void enable_interrupt_controller(void)
 void handle_irq(void) 
 {
     uint32_t irq;
+    float temp = 0;
+    float hum = 0;
 
     // Read pending IRQs from the interrupt register
     irq = IRQ_REG->IRQPending1;
@@ -115,6 +117,8 @@ void handle_irq(void)
 
             // Call the timer handler for Timer 1
             handle_timer(TIMER_1);
+
+            dht22_read(&temp, &hum);
         }
 
         // Check if the interrupt is from Timer 3

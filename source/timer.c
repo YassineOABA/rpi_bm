@@ -145,3 +145,13 @@ void handle_timer(uint8_t timer_idx)
     // Clear the interrupt flag for the specified timer.
     timer_clear_interrupt(timer_idx);
 }
+
+void delay_micro_s(uint32_t µs)
+{
+    uint64_t start = timer_get_ticks();
+
+    while(timer_get_ticks() < start + µs) 
+    {
+
+    }
+}

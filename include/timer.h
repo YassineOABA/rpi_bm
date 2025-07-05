@@ -74,4 +74,7 @@ extern uint64_t timer_get_ticks(void) ;
 extern void handle_timer(uint8_t timer_idx);
 
 
+
+extern void delay_micro_s(uint32_t µs);
+
 #endif /* _TIMER_H_ */

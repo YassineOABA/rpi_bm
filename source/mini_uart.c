@@ -54,8 +54,8 @@ void uart_init(void)
 
     // Configure pull-up/down resistors for the TX and RX pins.
     // Setting both pins to '0' disables any pull-up or pull-down resistors.
-    gpio_pull_up_down(MINI_UART_TXD, 0);  // No pull-up or pull-down for TXD
-    gpio_pull_up_down(MINI_UART_RXD, 0);  // No pull-up or pull-down for RXD
+    gpio_pull_up_down(MINI_UART_TXD, GPIO_PUD_OFF);  // No pull-up or pull-down for TXD
+    gpio_pull_up_down(MINI_UART_RXD, GPIO_PUD_OFF);  // No pull-up or pull-down for RXD
 
     // Enable the Mini UART (AUX) by setting the relevant bit in the ENABLES register.
     AUX->ENABLES = 1;           // Enable the AUX (Mini UART) peripheral

@@ -18,4 +18,6 @@
 // Base address for the Raspberry Pi peripheral registers
 #define PIBASE  0x3F000000
 
+#define CORE_CLOCK_SPEED 150000000
+
 #endif /* _BASE_H_ */

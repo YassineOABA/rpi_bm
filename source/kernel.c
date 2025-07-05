@@ -19,8 +19,9 @@
 #include "irq.h"
 #include "timer.h"
 #include "act_led.h"
-
-
+#include "lcd_2004.h"
+#include "i2c.h"
+#include "dht22.h"
 
 /**
  * @brief The main entry point for the kernel.
@@ -42,6 +43,19 @@ int kernel_main(void)
     // Initialize the GPIO system
     gpio_init();
 
+    // Initializes the IRQ vector table to handle interrupts
+    irq_init();
+
+    // Configures the interrupt controller to enable IRQ handling
+    enable_interrupt_controller();
+
+    // Enables interrupts by clearing the DAIF register, allowing IRQs to be serviced
+    irq_enable();
+
+    lcd_init();
+
+    dht22_init();
+
     // Initialize the UART system for serial communication
     uart_init();
 
@@ -60,18 +74,17 @@ int kernel_main(void)
     // Prints the current Stack Pointer (SP) value using UART
     uart_printf("Curren SP : %i\n", get_sp());
 
-    // Initializes the IRQ vector table to handle interrupts
-    irq_init();
-
-    // Configures the interrupt controller to enable IRQ handling
-    enable_interrupt_controller();
-
-    // Enables interrupts by clearing the DAIF register, allowing IRQs to be serviced
-    irq_enable();
-
     // Initialize Timer 1 for a specific configuration (e.g., periodic interrupts or one-shot mode)
     timer_init(TIMER_1);
 
+    lcd_set_cursor(0,0);
+    lcd_print("Hello LCD");
+    lcd_set_cursor(0,1);
+    lcd_print("MOONLIGHT");
+    lcd_set_cursor(0,2);
+    lcd_print("+");
+    lcd_set_cursor(0,3);
+    lcd_print("YASSINE");
     // Infinite loop
     while(1)
     {

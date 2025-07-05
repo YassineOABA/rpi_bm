@@ -24,6 +24,43 @@ static void uart_print_hex(int num, int uppercase);
 static void uart_print_long_long_int(long long int num);
 static void uart_print_unsigned_long_long_int(unsigned long long int num);
 static void uart_print_long_long_hex(long long int num, int uppercase);
+static void uart_print_float(double num, int precision);
+/**
+ * @brief Helper function to print a float over UART.
+ * 
+ * This function formats a floating-point number with the specified precision
+ * and sends the result over UART.
+ * 
+ * @param num The floating-point number to print.
+ * @param precision Number of digits to print after the decimal point.
+ * 
+ * @return void
+ */
+static void uart_print_float(double num, int precision) {
+    if (num < 0) {
+        uart_send('-');
+        num = -num;
+    }
+
+    // Extract the integer and fractional parts
+    int integer_part = (int)num;
+    double fractional_part = num - integer_part;
+
+    // Print the integer part
+    uart_print_int(integer_part);
+
+    // Print the decimal point
+    uart_send('.');
+
+    // Scale and round the fractional part to the desired precision
+    for (int i = 0; i < precision; i++) {
+        fractional_part *= 10;
+    }
+    int fractional_int = (int)(fractional_part + 0.5); // Round to nearest integer
+
+    // Print the fractional part
+    uart_print_int(fractional_int);
+}
 
 /**
  * @brief Helper function to print a signed integer over UART.
@@ -239,7 +276,7 @@ static void uart_print_long_long_hex(long long int num, int uppercase) {
  * This function mimics the behavior of the standard `printf` function, enabling 
  * formatted output via UART. It processes the format string, handles variable 
  * arguments using `va_list`, and calls the appropriate functions (like `uart_send`, 
- * `uart_print_int`, or `uart_print_hex`) for each format specifier.
+ * `uart_print_int`, or `uart_print_float`) for each format specifier.
  * 
  * Supported format specifiers:
  * - `%c` for characters
@@ -251,6 +288,7 @@ static void uart_print_long_long_hex(long long int num, int uppercase) {
  * - `%X` for hexadecimal (uppercase)
  * - `%lld` for signed 64-bit integers
  * - `%llu` for unsigned 64-bit integers
+ * - `%f` for floating-point numbers (default precision: 6)
  * 
  * @param format The format string containing text and format specifiers.
  * @param ... The variables to be formatted and printed.
@@ -267,6 +305,7 @@ void uart_printf(const char *format, ...) {
     long long int ll;
     unsigned long long int ull;
     char *s;
+    double f;
 
     // Iterate through the format string
     while (*format) {
@@ -320,6 +359,11 @@ void uart_printf(const char *format, ...) {
                         ll = va_arg(args, long long int);
                         uart_print_long_long_hex(ll, 1);
                     }
+                    break;
+
+                case 'f':  // Floating-point format specifier
+                    f = va_arg(args, double);  // Fetch the double argument
+                    uart_print_float(f, 6);  // Print the floating-point number with 6 digits of precision
                     break;
 
                 default:  // For unsupported format specifiers
